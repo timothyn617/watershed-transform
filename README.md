@@ -14,7 +14,7 @@ spaced bins). A sample training image (which has two lenses) and its watershed l
 Training/validation/test images are zipped. Labels (indicating how many lenses are in the image) are in training-labels.csv
 and validation-labels.csv, while coordinates of the centers of the lenses are in training-lenses.csv and validataion-lenses.csv.
 
-To start training, unzip all image files and run 
+To start training, unzip all image files in ```training.zip``` and ```validation.zip``` and run 
 
 ```python train.py```
 
@@ -27,8 +27,7 @@ for each run. Hyperparameters (such as batch size and learning rate) can easily 
 cmd_args.py.
 
 On an initial run with no hyperparameter fine tuning, we got 92% train / 88% validation for the watershed transform model
-and a 99% train / 83% validation for the resnet34 classifier. Here, we chose clustered the union of level sets 0-9 (out of 16)
-to determine which regions are to count as lenses (the threshold 9 had the best performance on the train/validataion data). You can validate your trained models modifying the weights paths in ```validate.py``` and running the latter.
+and a 99% train / 83% validation for the resnet34 classifier. Here, we chose clustered the union of level sets 0-9 (out of 16) to determine which regions are to count as lenses (the threshold 9 had the best performance on the train/validataion data). You can validate your trained models modifying the weights paths in ```validate.py``` and running the latter. Test images are stored in ```test.zip``` and sample test predictions of the aforementioned trained watershed model can be found in ```test_predictions.zip```.
 
 The conclusion is that the watershed transform learns a better set of features than a simple ternary classification and thus
 generalizes better. Moreover, the predictions of the watershed transform are more informative - instead of a single integer
