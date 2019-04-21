@@ -16,11 +16,11 @@ and validation-labels.csv, while coordinates of the centers of the lenses are in
 
 To start training, unzip all image files in ```training.zip``` and ```validation.zip``` and run 
 
-```python train.py```
+```python main.py```
 
 As a baseline, a resnet34 ternary classifier can also be trained using
 
-```python train.py --watershed False```
+```python main.py --watershed False```
 
 To facilitate multiple training runs and training monitoring, detailed tensorboard summaries are saved 
 for each run. Hyperparameters (such as batch size and learning rate) can easily be modified via the args available in
