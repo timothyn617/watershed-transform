@@ -6,10 +6,9 @@ import os
 import numpy as np
 import glob
 import shutil
-import data
+import dataset
 import unet
 import copy
-import cmd_args
 import torchvision
 
 WATERSHED_ENDPOINTS = [0, 1, 2, 3, 4, 5, 6, 7, 10, 15, 25, 35, 55, 100, 200, 362]
@@ -46,9 +45,9 @@ class Trainer():
 	def build_datasets(self):
 		args = self.args
 		if args.watershed:
-			self.train_loader, self.val_loader = data.get_dataloaders(args.batch_size, augment=True, skip_no_lenses_frames=False, watershed_endpoints=WATERSHED_ENDPOINTS)
+			self.train_loader, self.val_loader = dataset.get_dataloaders(args.batch_size, augment=True, skip_no_lenses_frames=False, watershed_endpoints=WATERSHED_ENDPOINTS)
 		else:
-			self.train_loader, self.val_loader = data.get_classifier_dataloaders(args.batch_size, augment=True)
+			self.train_loader, self.val_loader = dataset.get_classifier_dataloaders(args.batch_size, augment=True)
 
 	def train(self):
 		args = self.args
@@ -58,10 +57,10 @@ class Trainer():
 		self.model.train()
 		self.writer = SummaryWriter(args.save_dir + '/tensorboard')
 		self.writer.add_text('args', str(sorted(args.__dict__.items())))
-		for i in range(args.epochs):
+		for i in range(1,args.epochs+1):
 			self.train_epoch(i)
 			self.validate_epoch(i)
-			self.checkpoint(i)
+			self.save_checkpoint(i)
 			if args.debug: break
 
 
@@ -84,7 +83,7 @@ class Trainer():
 		model, train_loader, optimizer,writer = self.model, self.train_loader, self.optimizer, self.writer
 		model.train()
 		train_len = len(train_loader)
-		global_step = train_len * epoch
+		global_step = train_len * (epoch-1)
 		adjust_learning_rate(self.optimizer, args, epoch)
 		self.writer.add_scalar('learning_rate', self.optimizer.param_groups[0]['lr'], epoch)
 		for i, (image, label) in enumerate(train_loader):
@@ -118,7 +117,7 @@ class Trainer():
 			if args.save_freq and epoch % args.save_freq == 0: # if args.save_freq > 0, save with that frequency
 				torch.save(model.state_dict(), args.save_dir + '/epoch%s.pth' % str(epoch).zfill(3))
 				print('Saving model at epoch %d' % epoch)
-			elif (epoch == args.epochs-1): # save at end of training
+			elif epoch == args.epochs: # save at end of training
 				torch.save(model.state_dict(), args.save_dir + '/epoch%s.pth' % str(epoch).zfill(3))
 				print('Saving model at epoch %d' % epoch)
 
@@ -160,9 +159,6 @@ class Trainer():
 		print('===== Epoch %d, val_loss_avg: %.2f' % (epoch, losses.avg))
 
 		return losses.avg
-
-	def checkpoint(self, i):
-		self.save_checkpoint(i)
 
 
 def adjust_learning_rate(optimizer, args, epoch):
@@ -215,8 +211,3 @@ def setup_save(model, args):
 		shutil.copy(script, save_dir + '/code/' + os.path.basename(script))  # save state of code, for reproducibility
 	if args.save:
 		torch.save(model.state_dict(), save_dir + '/epoch000.pth')
-
-if __name__ == '__main__':
-	args = cmd_args.Args()
-	trainer = Trainer(args)
-	trainer.train()

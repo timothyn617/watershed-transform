@@ -1,11 +1,13 @@
 import argparse
 import datetime
 import os
-import sys
+
+main_dir = os.path.dirname(__file__)
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--exp_folder', default='watershed')
+parser.add_argument('--dataset_dir', default=main_dir + '/data')
+parser.add_argument('--exp_folder', default='watershed') # where model is saved
 parser.add_argument('--batch_size', type=int, default=3) # 3 for watershed model (due to memory limitations), use larger batch size for ternary classifier
 parser.add_argument('--epochs', type=int, default=60)
 parser.add_argument('--SGD', default='False') # Adam if True

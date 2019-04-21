@@ -9,19 +9,25 @@ import os
 # transforms = use flips
 main_dir = os.path.dirname(__file__)
 
-TRAIN_FILES_PATH = main_dir + '/training'
-VAL_FILES_PATH = main_dir + '/validation'
-TEST_FILES_PATH = main_dir + '/test'
-TRAIN_LENSES_CSV_PATH = main_dir + '/training-lenses.csv'
-VAL_LENSES_CSV_PATH = main_dir + '/validation-lenses.csv'
-TRAIN_LABELS_CSV_PATH = main_dir + '/training-labels.csv'
-VAL_LABELS_CSV_PATH = main_dir + '/validation-labels.csv'
+TRAIN_FILES_PATH = main_dir + '/data/training'
+VAL_FILES_PATH = main_dir + '/data/validation'
+TEST_FILES_PATH = main_dir + '/data/test'
+TRAIN_LENSES_CSV_PATH = main_dir + '/data/training/training-lenses.csv'
+TRAIN_LABELS_CSV_PATH = main_dir + '/data/training/training-labels.csv'
+VAL_LENSES_CSV_PATH = main_dir + '/data/validation/validation-lenses.csv'
+VAL_LABELS_CSV_PATH = main_dir + '/data/validation/validation-labels.csv'
 
 
 class ClassifierDataset(torch.utils.data.Dataset):
 
 	def __init__(self, file_path, labels_csv, augment=False, num_channels=3):
-		self.files = sorted(glob.glob(file_path + '/*'))
+		'''
+			file_path: path to images (trainining/validation/test)
+			labels_csv: path to labels (or None for test set)
+			augment: if True, add random horizontal/vertical flips
+			num_channels: 1 or 3; if 3, stack grayscale image in channel
+		'''
+		self.files = sorted(glob.glob(file_path + '/*.png'))
 		self.labels_csv = pd.read_csv(labels_csv) if labels_csv else None
 		self.len = len(self.files)
 		self.augment = augment
@@ -47,7 +53,7 @@ class ClassifierDataset(torch.utils.data.Dataset):
 		if self.labels_csv is not None:
 			label = torch.tensor(np.asscalar(np.squeeze(self.labels_csv.iloc[i]['label'])), dtype=torch.int64)
 		else:
-			label = torch.tensor([], dtype=torch.int64)
+			label = torch.tensor([], dtype=torch.int64) # empty labels
 		return image, label
 
 class DistanceDataset(torch.utils.data.Dataset):
@@ -56,7 +62,7 @@ class DistanceDataset(torch.utils.data.Dataset):
 		'''
 			watershed_levels: either None or a list [d0,d1, d2, ..., dn] where d0 = 0 < d1 < d2 < ... < dn. Bin distances [d0,d1], ..., [dn-1,dn]
 		'''
-		self.files = sorted(glob.glob(file_path + '/*'))
+		self.files = sorted(glob.glob(file_path + '/*.png'))
 		self.lenses_csv = pd.read_csv(lenses_csv)
 		self.len = len(self.files)
 		self.skip_no_lenses_frames = skip_no_lenses_frames
