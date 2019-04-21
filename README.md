@@ -7,8 +7,8 @@ and running a classifier (trained using multiclass cross entropy loss) on those 
 spaced bins). A sample training image (which has two lenses) and its watershed level predictions are shown below:
 
 <p align="center">
-<img src="https://github.com/timothyn617/watershed-transform/blob/master/training-00007.png">
-<img src="https://github.com/timothyn617/watershed-transform/blob/master/training-00007-prediction.png">
+<img src="https://github.com/timothyn617/watershed-transform/blob/master/example/training-00007.png">
+<img src="https://github.com/timothyn617/watershed-transform/blob/master/example/training-00007-prediction.png">
 </p>
 
 Training/validation/test images are zipped. Labels (indicating how many lenses are in the image) are in training-labels.csv
